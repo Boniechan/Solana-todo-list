@@ -33,20 +33,6 @@ npm run build
 ```bash
 npm run preview
 ```
-
-## Environment Variables
-
-Copy the example env file:
-
-```bash
-cp .env.example .env.local
-```
-
-Available variables:
-
-- `VITE_SOLANA_RPC_URL`: Solana RPC endpoint. Defaults to testnet.
-- `VITE_PROGRAM_ID`: Program ID for the deployed on-chain todo program.
-
 ## Notes
 
 - The app loads tasks only for the connected wallet.
