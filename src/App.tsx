@@ -1,7 +1,6 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 import {
-  WalletDisconnectButton,
   WalletMultiButton
 } from "@solana/wallet-adapter-react-ui";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -36,7 +35,8 @@ function accountLink(address: PublicKey): string {
 
 function App() {
   const { connection } = useConnection();
-  const { publicKey, connected, sendTransaction, signTransaction } = useWallet();
+  const { publicKey, connected, disconnecting, disconnect, sendTransaction, signTransaction } =
+    useWallet();
   const programId = useMemo(() => getProgramId(), []);
 
   const [tasks, setTasks] = useState<TodoTask[]>([]);
@@ -287,6 +287,25 @@ function App() {
     }
   }
 
+  async function handleDisconnect() {
+    if (!connected) {
+      return;
+    }
+
+    setError(null);
+    setStatus("Disconnecting wallet session...");
+
+    try {
+      await disconnect();
+      setStatus("Wallet disconnected.");
+    } catch (disconnectError) {
+      const message =
+        disconnectError instanceof Error ? disconnectError.message : "Failed to disconnect wallet.";
+      setError(message);
+      setStatus("The disconnect flow did not complete.");
+    }
+  }
+
   return (
     <div className="shell">
       <section className="hero">
@@ -315,7 +334,14 @@ function App() {
             </p>
             <div className="hero__actions">
               <WalletMultiButton />
-              <WalletDisconnectButton />
+              <button
+                className="danger-button"
+                disabled={!connected || disconnecting}
+                onClick={() => void handleDisconnect()}
+                type="button"
+              >
+                {disconnecting ? "Disconnecting..." : "Disconnect"}
+              </button>
             </div>
           </article>
         </div>
